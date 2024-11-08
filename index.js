@@ -1,4 +1,5 @@
 const fs=require('fs');
+const http=require('http');
 
 /*
 //Blocking,synchronous way
@@ -11,6 +12,7 @@ fs.writeFileSync('output.txt',output);
 */
 
 
+/*
 //non-blocking,asynchronous way
 fs.readFile('input.txt','utf-8',(err,data1)=>{
     
@@ -29,3 +31,15 @@ fs.readFile('input.txt','utf-8',(err,data1)=>{
 })
 
 console.log('will read this file');
+*/
+
+
+
+const server=http.createServer((req,res)=>{
+    res.end('hello form the server');
+});
+
+
+server.listen(8000,'127.0.0.1',()=>{
+    console.log('listen to requests on port 8000');
+});
