@@ -74,9 +74,15 @@ const data=fs.readFileSync(`${__dirname}/data.json`,'utf-8');
 const dataObj=JSON.parse(data);
 
 const server=http.createServer((req,res)=>{
-    const pathName=req.url;
 
-    if(pathName==='/' || pathName==='/overview'){
+    // console.log(req.url);
+    // console.log(url.parse(req.url,true));
+    const {query,pathname}=url.parse(req.url,true);
+
+
+    // const pathName=req.url;
+
+    if(pathname==='/' || pathname==='/overview'){
         res.writeHead(200,{
             'Content-type':'text/html'
         })
@@ -85,9 +91,16 @@ const server=http.createServer((req,res)=>{
         const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
         res.end(output);
 
-    }else if(pathName==='/product'){
-        res.end('product');
-    }else if(pathName==='/api'){
+    }else if(pathname==='/product'){
+        res.writeHead(200,{
+            'Content-type':'text/html'
+        })
+        // console.log(query);
+        const product=dataObj[query.id];
+        const output=replaceTemplate(tempProduct,product);
+        res.end(output);
+
+    }else if(pathname==='/api'){
 
         res.writeHead(200,{
             'Content-type':'application/json'
