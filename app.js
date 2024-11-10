@@ -144,12 +144,17 @@ const deleteUser=(req,res)=>{
 
 //routes
 
-app.route('/api/v1/tours').get(getAllTours).post(createTour);
-app.route('/api/v1/tours/:id').get(getTour).patch(updateTour).delete(deleteTour);
+const tourRouter=express.Router();
+const userRouter=express.Router();
+app.use('/api/v1/tours',tourRouter)
+app.use('/api/v1/users',userRouter)
+
+tourRouter.route('/').get(getAllTours).post(createTour);
+tourRouter.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
 
 //3rd party middleware named as morgan
-app.route('/api/v1/users').get(getAllUsers).post(createUser)
-app.route('/api/v1/users/:id').get(getUser).post(updateUser).delete(deleteUser)
+userRouter.route('/').get(getAllUsers).post(createUser)
+userRouter.route('/:id').get(getUser).post(updateUser).delete(deleteUser)
 
 
 
