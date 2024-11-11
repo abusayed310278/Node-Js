@@ -21,7 +21,7 @@ app.use(express.static(`${__dirname}/public`))
 
 //middleware order matters
 app.use((req, res, next) => {
-    console.log("middleare");
+    console.log("Query Completed");
     next();
 });
 
