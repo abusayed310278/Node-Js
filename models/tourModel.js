@@ -61,6 +61,12 @@ tourSchema.virtual('durationWeeks').get(function () {
 })
 
 
+//// DOCUMENT MIDDLEWARE: runs before .save() and .create()
+tourSchema.pre('save',function (next){
+    console.log(this)
+    next()
+})
+
 //here Tour is model madel name so its named as Tour which is convention of node.js
 const Tour = mongoose.model('Tour', tourSchema);
 
