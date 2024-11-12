@@ -55,22 +55,23 @@ exports.getTour = async (req, res) => {
 
 };
 
-exports.createTour = async (req, res) => {
+const catchAsync = fn => {
+    return (req, res, next) => {
+        fn(req, res, next).catch(err => next(err))
 
-    try {
-
-        const newTour = await Tour.create(req.body)
-        res.status(201).json({
-            status: 'success',
-            data: {tour: newTour}
-        })
-    } catch (err) {
-        res.status(400).json({
-            status: 'fail',
-            message: 'invalid data sent'
-        })
     }
 };
+
+
+exports.createTour = catchAsync(async (req, res, next) => {
+
+    const newTour = await Tour.create(req.body)
+    res.status(201).json({
+        status: 'success',
+        data: {tour: newTour}
+    })
+
+});
 
 
 exports.updateTour = async (req, res) => {
@@ -166,13 +167,13 @@ exports.getMonthlyPlan = async (req, res, next) => {
         },
         {
             $group: {
-                _id: { $month: '$startDates' },
-                numTourStarts: { $sum: 1 },
-                tours: { $push: '$name' }
+                _id: {$month: '$startDates'},
+                numTourStarts: {$sum: 1},
+                tours: {$push: '$name'}
             }
         },
         {
-            $addFields: { month: '$_id' }
+            $addFields: {month: '$_id'}
         },
         {
             $project: {
@@ -180,7 +181,7 @@ exports.getMonthlyPlan = async (req, res, next) => {
             }
         },
         {
-            $sort: { numTourStarts: -1 }
+            $sort: {numTourStarts: -1}
         },
         {
             $limit: 12
