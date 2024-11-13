@@ -1,14 +1,18 @@
 const mongoose = require("mongoose");
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema({
         name: {
             type: String,
             required: [true, 'A tour must have a name'],
             unique: true,
-            trim: true
+            trim: true,
+            maxlength: [40, 'A tour name must have less or equal then 40 characters'],
+            minlength: [10, 'A tour name must have more or equal then 10 characters'],
+            validate: [validator.isAlpha, 'Tour name must only contain characters']
         },
-        slug:String,
+        slug: String,
         duration: {
             type: Number,
             required: [true, 'A tour must have a duration']
@@ -19,17 +23,36 @@ const tourSchema = new mongoose.Schema({
         },
         difficulty: {
             type: String,
-            required: [true, 'A tour must have difficulty']
+            required: [true, 'A tour must have difficulty'],
+            enum: {
+                values: ['easy', 'medium', 'difficult'],
+                message: 'Difficulty is either: easy, medium, difficult'
+            }
         },
-        rating: {
+        ratingsAverage: {
             type: Number,
             default: 4.5,
+            min: [1, 'Rating must be above 1.0'],
+            max: [5, 'Rating must be below 5.0']
+        },
+        ratingsQuantity: {
+            type: Number,
+            default: 0
         },
         price: {
             type: Number,
             required: [true, 'A tour must have a price']
         },
-        priceDiscount: Number,
+        priceDiscount: {
+          type:Number,
+          validate:{
+              //this only points to current doc on new document creation
+              validator:function (val){
+                  return val<this.price
+              }
+          },
+          message:'Discount price ({VALUE}) should be below regular price'
+        },
         summary: {
             type: String,
             trim: true,
@@ -50,9 +73,9 @@ const tourSchema = new mongoose.Schema({
             select: false
         },
         startDates: [Date],
-        secretTour:{
-            type:Boolean,
-            default:false,
+        secretTour: {
+            type: Boolean,
+            default: false,
         }
 
     },
@@ -84,12 +107,20 @@ tourSchema.pre('save', function (next) {
 
 // QUERY MIDDLEWARE
 // tourSchema.pre('find', function(next) {
-tourSchema.pre(/^find/, function(next) {
-    this.find({ secretTour: { $ne: true } });
+tourSchema.pre(/^find/, function (next) {
+    this.find({secretTour: {$ne: true}});
 
     this.start = Date.now();
     next();
 });
+
+//aggregation middleware
+tourSchema.pre('aggregate', function (next) {
+    this.pipeline().unshift({$match: {secretTour: {$ne: true}}})
+
+    console.log(this.pipeline())
+    next()
+})
 
 //here Tour is model madel name so its named as Tour which is convention of node.js
 const Tour = mongoose.model('Tour', tourSchema);
