@@ -1,16 +1,16 @@
 const express = require("express");
 const morgan = require("morgan");
 
-const AppError=require('./utils/appError')
-const globalErrorHandler=require('./controllers/errorController')
+const AppError = require('./utils/appError')
+const globalErrorHandler = require('./controllers/errorController')
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const rateLimit = require("express-rate-limit");
-const helmet=require('helmet')
-const xss=require('xss-clean')
-const mongoSanitize=require('express-mongo-sanitize')
+const helmet = require('helmet')
+const xss = require('xss-clean')
+const mongoSanitize = require('express-mongo-sanitize')
 const hpp = require('hpp');
-const reviewRouter=require('./routes/reviewRoutes')
+const reviewRouter = require('./routes/reviewRoutes')
 
 const app = express();
 
@@ -23,13 +23,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Limit requests from same API
-const limiter=rateLimit({
-    max:100,
-    windowMs:100,
-    message:'Too many requests from this IP, please try again in an hour!'
-})
+const limiter = rateLimit({
+                              max: 100,
+                              windowMs: 100,
+                              message: 'Too many requests from this IP, please try again in an hour!'
+                          })
 
-app.use('/api',limiter)
+app.use('/api', limiter)
 
 
 //middleware b/w req and res
@@ -42,19 +42,19 @@ app.use(mongoSanitize())
 app.use(xss())
 
 // Body parser, reading data from body into req.body
-app.use(express.json({limit:'10kb'}))
+app.use(express.json({limit: '10kb'}))
 
 // Prevent parameter pollution
 app.use(hpp({
-    whitelist:[
-        'duration',
-        'ratingsQuantity',
-        'ratingsAverage',
-        'maxGroupSize',
-        'difficulty',
-        'price'
-    ]
-}))
+                whitelist: [
+                    'duration',
+                    'ratingsQuantity',
+                    'ratingsAverage',
+                    'maxGroupSize',
+                    'difficulty',
+                    'price'
+                ]
+            }))
 
 
 //use route for middleware for rendering static file
@@ -79,11 +79,11 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/reviews",reviewRouter)
+app.use("/api/v1/reviews", reviewRouter)
 
 
 //all route handles which does not have any url defined
-app.all('*',(req,res,next)=>{
+app.all('*', (req, res, next) => {
 
     // res.status(404).json({
     //     status:'fail',
@@ -94,7 +94,7 @@ app.all('*',(req,res,next)=>{
     // err.status='fails'
     // err.statusCode=404
 
-    next(new AppError(`can't find ${req.originalUrl} on this server`,404))
+    next(new AppError(`can't find ${req.originalUrl} on this server`, 404))
 
 })
 
