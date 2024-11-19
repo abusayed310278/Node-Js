@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+
 const AppError=require('./utils/appError')
 const globalErrorHandler=require('./controllers/errorController')
 const tourRouter = require("./routes/tourRoutes");
@@ -9,6 +10,7 @@ const helmet=require('helmet')
 const xss=require('xss-clean')
 const mongoSanitize=require('express-mongo-sanitize')
 const hpp = require('hpp');
+const reviewRouter=require('./routes/reviewRoutes')
 
 const app = express();
 
@@ -77,6 +79,7 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/reviews",reviewRouter)
 
 
 //all route handles which does not have any url defined

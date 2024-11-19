@@ -78,19 +78,8 @@ const tourSchema = new mongoose.Schema({
             type: Boolean,
             default: false,
         },
-    startLocation: {
-        // GeoJSON
-        type: {
-            type: String,
-            default: 'Point',
-            enum: ['Point']
-        },
-        coordinates: [Number],
-        address: String,
-        description: String
-    },
-    locations: [
-        {
+        startLocation: {
+            // GeoJSON
             type: {
                 type: String,
                 default: 'Point',
@@ -98,16 +87,27 @@ const tourSchema = new mongoose.Schema({
             },
             coordinates: [Number],
             address: String,
-            description: String,
-            day: Number
-        }
-    ],
-    guides: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: 'User'
-        }
-    ]
+            description: String
+        },
+        locations: [
+            {
+                type: {
+                    type: String,
+                    default: 'Point',
+                    enum: ['Point']
+                },
+                coordinates: [Number],
+                address: String,
+                description: String,
+                day: Number
+            }
+        ],
+        guides: [
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'User'
+            }
+        ]
 
     },
     {
@@ -120,6 +120,13 @@ tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7
 })
 
+// Virtual populate
+tourSchema.virtual('reviews',{
+    ref:'Review',
+    foreignField:'tour',
+    localField:'_id'
+})
+
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function (next) {
@@ -127,7 +134,7 @@ tourSchema.pre('save', function (next) {
     next()
 })
 
-tourSchema.pre(/^find/,function (next){
+tourSchema.pre(/^find/, function (next) {
 
     this.populate({
         path: 'guides',
