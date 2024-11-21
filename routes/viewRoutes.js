@@ -4,12 +4,7 @@ const authController = require('../controllers/authController');
 
 const router=express.Router()
 
-// router.get('/',(req,res)=>{
-//     res.status(200).render('base',{
-//         tour:'the forest hiker',
-//         user:'jones'
-//     })
-// })
+router.use(authController.isLoggedIn)
 
 
 router.get('/',viewsController.getOverview)
